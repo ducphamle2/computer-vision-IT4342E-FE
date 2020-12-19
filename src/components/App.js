@@ -6,10 +6,21 @@ import { API_URL } from '../utils/constants';
 import Select from 'react-select';
 
 const options = [
-  { value: 'vietnamese', label: 'Vietnamese'},
-  { value: 'english', label: 'English'},
-  { value: 'russian', label: 'Russian'},
+  { value: 'vietnamese', label: 'Vietnamese' },
+  { value: 'english', label: 'English' },
+  { value: 'russian', label: 'Russian' },
 ]
+
+const OCRoptions = [
+  { value: 'google', label: 'Google Vision' },
+  { value: 'tes', label: 'Tesseract' },
+]
+
+const langoptions = [
+  { value: 'jp', label: 'Japanese' },
+  { value: 'en', label: 'English' },
+]
+
 
 function App(props) {
   const [file, setFile] = useState(null); // state for storing actual image
@@ -19,6 +30,9 @@ function App(props) {
   });
   const [errorMsg, setErrorMsg] = useState('');
   const [selectedLang, setSelectedLang] = useState('');
+  const [selectedOCR, setSelectedOCR] = useState('');
+  const [selectedSourceLang, setSelectedSourceLang] = useState('');
+
 
   const [isPreviewAvailable, setIsPreviewAvailable] = useState(false); // state to show preview only for images
   const dropRef = useRef(); // React ref for managing the hover state of droppable area
@@ -26,9 +40,15 @@ function App(props) {
   const handleChange = (value) => {
     setSelectedLang(value)
     console.log(selectedLang)
-};
-
-
+  };
+  const handleChangeOCR = (value) => {
+    setSelectedOCR(value)
+    console.log(selectedOCR)
+  };
+  const handleChangelang = (value) => {
+    setSelectedSourceLang(value)
+    console.log(selectedLang)
+  };
   const handleInputChange = (event) => {
     setState({
       ...state,
@@ -58,14 +78,13 @@ function App(props) {
   };
 
   const handleOnSubmit = async (event) => {
-    alert('PLEASE WAIT...')
     event.preventDefault();
     console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
     try {
       const { url } = state;
       var expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
       var regex = new RegExp(expression);
-      let payload = 'url=' + url + '&lang=' + selectedLang.value
+      let payload = 'url=' + url + '&lang=' + selectedLang.value + '&ocr=' + selectedOCR.value + '&srclang=' + selectedSourceLang.value
       console.log(payload)
       if (url.match(regex)) {
         setErrorMsg('');
@@ -98,7 +117,7 @@ function App(props) {
       error.response && setErrorMsg(error.response.data);
     }
   };
-  
+
   return (
     <React.Fragment>
       <Form className="search-form" onSubmit={handleOnSubmit}>
@@ -115,13 +134,28 @@ function App(props) {
             </Form.Group>
           </Col>
         </Row>
-        <Select 
-          placeholder="Select Language"
-          defaultValue={options[0]}
+        <Select
+          placeholder="Select Language To Translate To"
           label="Choose Language"
           value={selectedLang}
           onChange={handleChange}
           options={options}
+        />
+        <br></br>
+        <Select
+          placeholder="Select OCR"
+          label="Choose OCR"
+          value={selectedOCR}
+          onChange={handleChangeOCR}
+          options={OCRoptions}
+        />
+        <br></br>
+        <Select
+          placeholder="Select Source Language"
+          label="Choose source language"
+          value={selectedSourceLang}
+          onChange={handleChangelang}
+          options={langoptions}
         />
         {/* <div className="upload-section">
           <Dropzone
@@ -157,10 +191,14 @@ function App(props) {
               </div>
             )}
         </div> */}
+        <br></br>
         <Button variant="primary" type="submit" onClick={handleOnSubmit}>
           Submit
         </Button>
       </Form>
+      <br></br>
+      <p>This can take a very long time depends on the number of images and the OCR engine.</p>
+      <p>You will be redirected when it finishes running.</p>
     </React.Fragment>
   );
 }
