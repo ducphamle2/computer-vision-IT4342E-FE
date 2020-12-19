@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 // import { API_URL } from '../utils/constants';
 import { useLocation } from 'react-router-dom';
 
+var listOfImages = []
+
 const Result = () => {
 
   const location = useLocation();
@@ -11,12 +13,13 @@ const Result = () => {
   const importAll = (r) => {
     return r.keys().map(r);
   }
-  const [listOfImages, setList] = useState([]);
+  const [counter, setCounter] = useState(0);
   // const [Result, setResult] = useState([]);
   // const [errorMsg, setErrorMsg] = useState('');
   useEffect(() => {
-    setList(importAll(require.context('../../../computer-vision-IT4342E/ocr_manga/executables/tmp_images/translated/', false, /\.(png|jpe?g)$/)));
+    listOfImages = importAll(require.context('../../../computer-vision-IT4342E/ocr_manga/executables/tmp_images/translated/', false, /\.(png|jpe?g)$/));
     console.log(listOfImages)
+    setCounter(1)
   }, [])
 
   return (

@@ -93,8 +93,12 @@ function App(props) {
           url: API_URL + "/v1/translate",
           data: payload,
         })
-        console.log("response: ", res.data.data.response_data)
-        props.history.push({ pathname: '/result', state: res.data.data.response_data });
+        console.log("response: ", res.data.data)
+        if (res.data.data.status == 200) {
+          props.history.push({ pathname: '/result' });
+        } else {
+          setErrorMsg("Cannot translate the manga");
+        }
         // if (file) {
         //   const formData = new FormData();
         //   formData.append('file', file);
