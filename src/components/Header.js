@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 const Header = () => {
   return (
     <div className="header">
-      <h1>File Upload And Download</h1>
+      <h1>Manga Translator</h1>
       <nav>
         <NavLink activeClassName="active" to="/" exact={true}>
           Home

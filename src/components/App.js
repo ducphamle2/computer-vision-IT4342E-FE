@@ -3,6 +3,13 @@ import Dropzone from 'react-dropzone';
 import axios from 'axios';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { API_URL } from '../utils/constants';
+import Select from 'react-select';
+
+const options = [
+  { value: 'vietnamese', label: 'Vietnamese'},
+  { value: 'english', label: 'English'},
+  { value: 'russian', label: 'Russian'},
+]
 
 function App(props) {
   const [file, setFile] = useState(null); // state for storing actual image
@@ -11,8 +18,16 @@ function App(props) {
     url: '',
   });
   const [errorMsg, setErrorMsg] = useState('');
+  const [selectedLang, setSelectedLang] = useState('');
+
   const [isPreviewAvailable, setIsPreviewAvailable] = useState(false); // state to show preview only for images
   const dropRef = useRef(); // React ref for managing the hover state of droppable area
+
+  const handleChange = (value) => {
+    setSelectedLang(value)
+    console.log(selectedLang)
+};
+
 
   const handleInputChange = (event) => {
     setState({
@@ -43,18 +58,21 @@ function App(props) {
   };
 
   const handleOnSubmit = async (event) => {
+    alert('PLEASE WAIT...')
     event.preventDefault();
     console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
     try {
       const { url } = state;
       var expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
       var regex = new RegExp(expression);
+      let payload = 'url=' + url + '&lang=' + selectedLang.value
+      console.log(payload)
       if (url.match(regex)) {
         setErrorMsg('');
         const res = await axios({
           method: "POST",
           url: API_URL + "/v1/translate",
-          data: url,
+          data: payload,
         })
         console.log("response: ", res.data.data.response_data)
         props.history.push({ pathname: '/result', state: res.data.data.response_data });
@@ -80,7 +98,7 @@ function App(props) {
       error.response && setErrorMsg(error.response.data);
     }
   };
-
+  
   return (
     <React.Fragment>
       <Form className="search-form" onSubmit={handleOnSubmit}>
@@ -97,7 +115,15 @@ function App(props) {
             </Form.Group>
           </Col>
         </Row>
-        <div className="upload-section">
+        <Select 
+          placeholder="Select Language"
+          defaultValue={options[0]}
+          label="Choose Language"
+          value={selectedLang}
+          onChange={handleChange}
+          options={options}
+        />
+        {/* <div className="upload-section">
           <Dropzone
             onDrop={onDrop}
             onDragEnter={() => updateBorder('over')}
@@ -130,7 +156,7 @@ function App(props) {
                 <p>Image preview will be shown here after selection</p>
               </div>
             )}
-        </div>
+        </div> */}
         <Button variant="primary" type="submit" onClick={handleOnSubmit}>
           Submit
         </Button>
