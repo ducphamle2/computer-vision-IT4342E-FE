@@ -5,11 +5,6 @@ const Header = () => {
   return (
     <div className="header">
       <h1>Manga Translator</h1>
-      <nav>
-        <NavLink activeClassName="active" to="/" exact={true}>
-          Home
-        </NavLink>
-      </nav>
     </div>
   );
 };
