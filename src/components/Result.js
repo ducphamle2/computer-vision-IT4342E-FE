@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 var listOfImages = []
 
 const Result = () => {
+
+  const location = useLocation();
+
+  const URL = "http://164.90.180.95:5001/api/v0/cat"
 
   const importAll = (r) => {
     return r.keys().map(r);
@@ -11,17 +17,37 @@ const Result = () => {
   const [counter, setCounter] = useState(0);
   // const [Result, setResult] = useState([]);
   // const [errorMsg, setErrorMsg] = useState('');
-  useEffect(() => {
-    listOfImages = importAll(require.context('./tmp_images/', false, /\.(png|jpe?g)$/));
-    console.log("list of images: ", listOfImages)
+  useEffect(async () => {
+
+    // query the images
+
+    for (let i = 0; i < location.state.length; i++) {
+      const img = await axios({
+        method: "POST",
+        url: URL + "?arg=" + location.state[i],
+        responseType: 'blob'
+      })
+      // blog type
+      console.log("type of image: ", img.data);
+      console.log("image as url: ", window.URL.createObjectURL(img.data))
+      listOfImages.push(window.URL.createObjectURL(img.data))
+    }
+
+    // listOfImages = importAll(require.context('./tmp_images/', false, /\.(png|jpe?g)$/));
+    // console.log("list of images: ", listOfImages)
     setCounter(1)
   }, [])
 
   return (
     <div>
-      {
+      {/* {
         listOfImages.map(
           (image, index) => <img key={index} src={image} alt="info"></img>
+        )
+      } */}
+      {
+        listOfImages.map(
+          (image, index) => <img key={index} src={image} alt='some text' />
         )
       }
     </div>

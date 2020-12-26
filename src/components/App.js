@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Dropzone from 'react-dropzone';
 import axios from 'axios';
 import { Form, Row, Col, Button } from 'react-bootstrap';
@@ -95,7 +95,8 @@ function App(props) {
         })
         console.log("response: ", res.data.data)
         if (res.data.data.status == 200) {
-          props.history.push({ pathname: '/result' });
+          console.log("response translated list: ", res.data.data.translated_list)
+          props.history.push({ pathname: '/result', state: res.data.data.translated_list });
         } else {
           setErrorMsg("Cannot translate the manga");
         }
