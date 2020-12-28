@@ -4,6 +4,9 @@ import axios from 'axios';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { API_URL } from '../utils/constants';
 import Select from 'react-select';
+import { usePromiseTracker } from "react-promise-tracker";
+import { trackPromise } from 'react-promise-tracker';
+import Loader from 'react-loader-spinner';
 
 const options = [
   { value: 'vietnamese', label: 'Vietnamese' },
@@ -33,6 +36,24 @@ function App(props) {
   const [selectedOCR, setSelectedOCR] = useState('');
   const [selectedSourceLang, setSelectedSourceLang] = useState('');
 
+  const LoadingIndicator = () => {
+    const { promiseInProgress } = usePromiseTracker();
+    return (
+      promiseInProgress &&
+      <div
+        style={{
+          width: "100%",
+          height: "100",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }
+        }
+      >
+        <Loader type="ThreeDots" color="#2BAD60" height="100" width="100" />
+      </div >
+    );
+  }
 
   const [isPreviewAvailable, setIsPreviewAvailable] = useState(false); // state to show preview only for images
   const dropRef = useRef(); // React ref for managing the hover state of droppable area
@@ -88,18 +109,23 @@ function App(props) {
       console.log(payload)
       if (url.match(regex)) {
         setErrorMsg('');
-        const res = await axios({
-          method: "POST",
-          url: API_URL + "/v1/translate",
-          data: payload,
-        })
-        console.log("response: ", res.data.data)
-        if (res.data.data.status == 200) {
-          console.log("response translated list: ", res.data.data.translated_list)
-          props.history.push({ pathname: '/result', state: res.data.data.translated_list });
-        } else {
-          setErrorMsg("Cannot translate the manga");
-        }
+        trackPromise(
+          axios({
+            method: "POST",
+            url: API_URL + "/v1/translate",
+            data: payload,
+          }).then(res => {
+            console.log("response: ", res.data.data)
+            if (res.data.data.status == 200) {
+              console.log("response translated list: ", res.data.data.translated_list)
+              props.history.push({ pathname: '/result', state: res.data.data.translated_list });
+            } else {
+              setErrorMsg("Cannot translate the manga");
+            }
+          }).catch(error => {
+            console.log("error while handling translating the mangas: ", error)
+          })
+        )
         // if (file) {
         //   const formData = new FormData();
         //   formData.append('file', file);
@@ -204,6 +230,7 @@ function App(props) {
       <br></br>
       <p>This can take a very long time depends on the number of images and the OCR engine.</p>
       <p>You will be redirected when it finishes running.</p>
+      <LoadingIndicator />
     </React.Fragment>
   );
 }
